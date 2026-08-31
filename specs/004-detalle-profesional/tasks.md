@@ -1,0 +1,4 @@
+- [x] Crear especificación y plan.
+- [x] Implementar ruta protegida.
+- [x] Implementar vista y grillas.
+- [x] Verificar compilación y pruebas.

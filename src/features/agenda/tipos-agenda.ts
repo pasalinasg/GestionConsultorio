@@ -1,0 +1,2 @@
+export type EstadoTurno = "pendiente" | "confirmada" | "rechazada" | "vencida" | "cancelada" | "atendida" | "no_asistio";
+export type TurnoListado = { id: string; paciente: string; profesional: string; profesionalId: string; servicio: string; profesionalServicioId: string; inicio: string; fin: string; modalidad: "presencial" | "online"; estado: EstadoTurno; origen: "interno" | "publico"; precioGs: number };

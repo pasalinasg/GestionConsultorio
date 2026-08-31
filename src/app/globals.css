@@ -1,0 +1,60 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap");
+@import "tailwindcss";
+
+:root {
+  --ink: #23352d;
+  --forest: #315a46;
+  --sage: #cbd9b5;
+  --cream: #f7f4ed;
+  --peach: #f2c7aa;
+  --paper: #fffdf8;
+  --muted: #5a6a60;
+  --line: #23352d29;
+  --fondo: var(--paper);
+  --texto: var(--ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+input,
+select,
+textarea,
+button,
+.border,
+.border-b {
+  border-color: var(--line);
+}
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: "DM Sans", Arial, Helvetica, sans-serif;
+}
+h1,
+h2,
+h3 {
+  font-family: "Fraunces", Georgia, serif;
+}
+::selection {
+  background: var(--peach);
+  color: var(--ink);
+}
+
+@keyframes toast-out {
+  0%,
+  78% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+  }
+}
+
+.toast-temporal {
+  animation: toast-out 5s ease-out forwards;
+}
