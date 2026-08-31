@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ServicioListado } from "./tipos-servicios";
 import {
@@ -22,10 +22,11 @@ export function ListaServicios({
   const [filtro, setFiltro] = useState("todos");
   const [modal, setModal] = useState<ServicioListado | null | "crear">(null);
   const [mostrarBanner, setMostrarBanner] = useState(false);
-  const [operacionEnCurso, setOperacionEnCurso] = useState(false);
+  const [respuestaLista, setRespuestaLista] = useState(false);
   const [ultimaAccion, setUltimaAccion] = useState<
-    "crear" | "editar" | "eliminar"
+    "crear" | "editar" | "eliminar" | "estado"
   >("crear");
+  const esperandoRespuesta = useRef(false);
   const [crearEstado, crear, pendienteCrear] = useActionState(
     crearServicioAccion,
     {} as EstadoServicioAccion,
@@ -54,31 +55,41 @@ export function ListaServicios({
   const actual = modal && modal !== "crear" ? modal : null;
   const notificarAlEnviar = (accion: typeof ultimaAccion) => {
     setUltimaAccion(accion);
-    setOperacionEnCurso(true);
-    setMostrarBanner(true);
-    window.setTimeout(() => {
-      setMostrarBanner(false);
-      router.refresh();
-    }, 4000);
+    esperandoRespuesta.current = true;
+    setRespuestaLista(false);
   };
   const resultadoActual = {
     crear: crearEstado,
-    editar:
-      editarEstado.exito || editarEstado.error ? editarEstado : estadoEstado,
+    editar: editarEstado,
     eliminar: eliminarEstado,
+    estado: estadoEstado,
   }[ultimaAccion];
   useEffect(() => {
-    if (operacionEnCurso && resultadoActual.exito) {
-      const cierre = window.setTimeout(() => {
-        setModal(null);
-        setOperacionEnCurso(false);
-      }, 100);
-      return () => window.clearTimeout(cierre);
+    if (!esperandoRespuesta.current) return;
+    if (!resultadoActual.exito && !resultadoActual.error) return;
+
+    esperandoRespuesta.current = false;
+    setRespuestaLista(true);
+    setMostrarBanner(true);
+
+    if (resultadoActual.exito) {
+      setModal(null);
+      router.refresh();
     }
-  }, [operacionEnCurso, resultadoActual.exito]);
+
+    const ocultar = window.setTimeout(() => setMostrarBanner(false), 4500);
+    return () => window.clearTimeout(ocultar);
+  }, [
+    crearEstado,
+    editarEstado,
+    eliminarEstado,
+    estadoEstado,
+    resultadoActual,
+    router,
+  ]);
   return (
     <div className="grid gap-5">
-      {mostrarBanner && (resultadoActual.exito || resultadoActual.error) ? (
+      {mostrarBanner && respuestaLista && (resultadoActual.exito || resultadoActual.error) ? (
         <p
           role={resultadoActual.error ? "alert" : "status"}
           className={`fixed right-5 top-5 z-[70] flex w-[min(90vw,28rem)] items-center gap-3 rounded-3xl border px-5 py-4 text-sm shadow-xl ${resultadoActual.error ? "border-rose-200 bg-rose-50 text-rose-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}
@@ -236,7 +247,7 @@ export function ListaServicios({
               {actual ? (
                 <form
                   action={cambiarEstado}
-                  onSubmit={() => notificarAlEnviar("editar")}
+                  onSubmit={() => notificarAlEnviar("estado")}
                   className="mt-3"
                 >
                   <input type="hidden" name="id" value={actual.id} />

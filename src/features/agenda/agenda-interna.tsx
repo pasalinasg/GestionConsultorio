@@ -217,7 +217,7 @@ export function AgendaInterna({
       </div>
       {modal ? (
         <div className="fixed inset-0 z-50 grid place-items-center bg-[var(--ink)]/35 p-4">
-          <section className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-3xl bg-[var(--paper)] shadow-2xl">
+          <section className="max-h-[92vh] w-full max-w-none overflow-hidden rounded-3xl bg-[var(--paper)] shadow-2xl sm:w-[90vw]">
             <div className="max-h-[90vh] overflow-y-auto p-6 sm:p-8">
               <div className="relative flex items-center justify-center border-b border-[var(--line)] pb-5 text-center">
                 {paso > 1 ? <button type="button" aria-label="Volver al paso anterior" onClick={() => setPaso((valor) => valor - 1)} className="absolute left-0 top-1 text-2xl leading-none text-[var(--forest)]">←</button> : null}
@@ -344,7 +344,7 @@ export function AgendaInterna({
                   <p className="text-sm text-[var(--muted)]">
                     Servicios disponibles
                   </p>
-                  <div className="grid gap-4 md:grid-cols-[repeat(auto-fit,minmax(340px,1fr))]">{opciones
+                  <div className="grid grid-flow-col auto-cols-[17rem] justify-start gap-4 overflow-x-auto pb-3 xl:auto-cols-[calc((100%-4rem)/5)] xl:justify-center">{opciones
                     .filter((o) => o.profesional === profesional)
                     .map((o) => (
                       <button
@@ -354,7 +354,7 @@ export function AgendaInterna({
                           setOpcion(o.id);
                           setPaso(5);
                         }}
-                        className="min-h-64 cursor-pointer rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-5 text-left transition hover:border-[var(--forest)]"
+                        className="flex min-h-64 cursor-pointer flex-col items-start justify-start rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-5 text-left transition hover:border-[var(--forest)]"
                       >
                         <span className="text-xs font-bold uppercase tracking-wider text-[var(--forest)]">{o.modalidad} · {o.duracion ?? 30} min</span><strong className="mt-4 block font-[Fraunces] text-2xl">{o.servicio}</strong><strong className="mt-3 block font-[Fraunces] text-3xl">Gs. {o.precio.toLocaleString("es-PY")}</strong><span className="mt-3 block text-sm text-[var(--muted)]">
                           {o.descripcion ? o.descripcion.split("✓").filter(Boolean).map((line, index) => <span key={`${o.id}-${index}`} className="mb-1 block">✓ {line.trim()}</span>) : "Servicio profesional personalizado."}
