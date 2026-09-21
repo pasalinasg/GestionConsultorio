@@ -40,6 +40,7 @@ export async function editarProfesionalAccion(
     await editarProfesional(
       String(f.get("id")),
       ...datos(f),
+      String(f.get("usuarioId") ?? ""),
       await obtenerContextoAutorizado(await crearClienteSupabaseServidor()),
     );
     revalidatePath("/profesionales");

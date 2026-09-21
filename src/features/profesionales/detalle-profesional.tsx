@@ -41,9 +41,11 @@ type P = {
   nombre_completo: string;
   descripcion: string | null;
   estado: "activo" | "inactivo";
+  usuario_id: string | null;
   asignaciones: A[];
   disponibilidad: D[];
 };
+type Usuario = { id: string; nombreUsuario: string };
 const dias = [
   "",
   "Lunes",
@@ -57,9 +59,11 @@ const dias = [
 export function DetalleProfesional({
   profesional,
   servicios,
+  usuarios,
 }: {
   profesional: P;
   servicios: S[];
+  usuarios: Usuario[];
 }) {
   const [modal, setModal] = useState(false);
   const [servicioModal, setServicioModal] = useState<A | "nuevo" | null>(null);
@@ -114,6 +118,15 @@ export function DetalleProfesional({
   const [franjaResultado, setFranjaResultado] =
     useState<EstadoAsignacion | null>(null);
   const [notificacion, setNotificacion] = useState<string>();
+  const [enlaceReserva, setEnlaceReserva] = useState("");
+  useEffect(() => {
+    setEnlaceReserva(`${window.location.origin}/reservar/${profesional.id}`);
+  }, [profesional.id]);
+  const copiarEnlaceReserva = async () => {
+    if (!enlaceReserva) return;
+    await navigator.clipboard.writeText(enlaceReserva);
+    setNotificacion("Enlace de reserva copiado.");
+  };
   const ejecutarCrearFranja = async (formData: FormData) =>
     setFranjaResultado(await crearFranjaServicioAccion({}, formData));
   const ejecutarEliminarFranja = async (formData: FormData) =>
@@ -251,6 +264,28 @@ export function DetalleProfesional({
           </button>
         </div>
       </header>
+      <section className="flex flex-col gap-3 rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-4 sm:flex-row sm:items-end">
+        <label className="grid min-w-0 flex-1 gap-1.5 text-sm font-semibold text-[var(--ink)]">
+          <span className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--forest)]">
+            Enlace público de reserva
+          </span>
+          <input
+            readOnly
+            value={enlaceReserva}
+            onFocus={(event) => event.currentTarget.select()}
+            aria-label="Enlace público de reserva"
+            className="h-11 w-full rounded-xl border border-[var(--line)] bg-[var(--cream)] px-3 font-mono text-xs text-[var(--muted)] outline-none focus:border-[var(--forest)]"
+          />
+        </label>
+        <button
+          type="button"
+          onClick={copiarEnlaceReserva}
+          disabled={!enlaceReserva}
+          className="h-11 shrink-0 rounded-full bg-[var(--forest)] px-5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Copiar enlace
+        </button>
+      </section>
       <section className="relative grid gap-5 rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-5">
         <div
           className={`flex flex-wrap items-center justify-between gap-3 ${!seccionesAbiertas.disponibilidad ? "min-h-[90px]" : ""}`}
@@ -1145,6 +1180,21 @@ export function DetalleProfesional({
                 defaultValue={profesional.descripcion || ""}
                 className="rounded-xl border p-3"
               />
+              <label className="grid gap-2 text-sm font-medium">
+                Usuario asociado
+                <select
+                  name="usuarioId"
+                  defaultValue={profesional.usuario_id || ""}
+                  className="h-11 rounded-xl border px-3"
+                >
+                  <option value="">Sin usuario asociado</option>
+                  {usuarios.map((usuario) => (
+                    <option key={usuario.id} value={usuario.id}>
+                      {usuario.nombreUsuario}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <button className="h-11 rounded-full bg-[var(--forest)] text-white">
                 Guardar cambios
               </button>

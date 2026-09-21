@@ -46,6 +46,7 @@ function nombreActividad(recurso: string, accion: AccionRecurso) {
     empresa: "empresa",
     usuarios: "usuarios",
     agenda: "agenda",
+    mi_agenda: "mi agenda",
     profesionales: "profesionales",
     servicios: "servicios",
     pacientes: "pacientes",

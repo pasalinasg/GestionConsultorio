@@ -26,6 +26,11 @@ button,
 .border-b {
   border-color: var(--line);
 }
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
 body {
   margin: 0;
   background: var(--fondo);
