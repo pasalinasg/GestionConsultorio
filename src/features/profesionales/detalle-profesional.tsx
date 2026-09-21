@@ -1100,6 +1100,34 @@ export function DetalleProfesional({
                 </form>
               ) : (
                 <div className="mt-5 grid gap-3">
+                  <div className="grid gap-2 rounded-2xl border border-[var(--line)] bg-[var(--cream)] p-4">
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--forest)]">
+                      Enlace público de este servicio
+                    </p>
+                    <input
+                      readOnly
+                      value={
+                        enlaceReserva
+                          ? `${enlaceReserva}/${servicioModal.id}`
+                          : ""
+                      }
+                      onFocus={(event) => event.currentTarget.select()}
+                      className="h-10 rounded-xl border border-[var(--line)] bg-[var(--paper)] px-3 font-mono text-xs text-[var(--muted)] outline-none focus:border-[var(--forest)]"
+                    />
+                    <button
+                      type="button"
+                      disabled={!enlaceReserva}
+                      onClick={async () => {
+                        await navigator.clipboard.writeText(
+                          `${enlaceReserva}/${servicioModal.id}`,
+                        );
+                        setNotificacion("Enlace del servicio copiado.");
+                      }}
+                      className="w-fit cursor-pointer rounded-full border border-[var(--forest)] px-4 py-2 text-sm font-semibold text-[var(--forest)] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Copiar enlace del servicio
+                    </button>
+                  </div>
                   <form action={editarAsig} className="grid gap-3">
                     <input type="hidden" name="id" value={servicioModal.id} />
                     <label className="grid gap-1 text-sm">

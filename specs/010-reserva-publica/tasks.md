@@ -6,3 +6,5 @@
 - [x] T004 [US2] Construir experiencia pública en `src/features/reserva-publica/reserva-publica.tsx`
 - [x] T005 [US2] Exponer ruta directa en `src/app/reservar/[profesionalId]/page.tsx`
 - [x] T006 Validar tipos con `npm run typecheck`
+- [x] T007 [US3] Agregar ruta pública con servicio preseleccionado y exponer/copiar el enlace por asignación.
+- [x] T008 [US3] Incluir `enlaceReserva` en ambas respuestas de la API pública de servicios.

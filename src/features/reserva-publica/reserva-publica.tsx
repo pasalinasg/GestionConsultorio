@@ -35,12 +35,14 @@ export function ReservaPublica({
   servicios,
   franjas,
   ocupaciones,
+  asignacionPreseleccionada,
   ahoraInicial,
 }: {
   profesional: { id: string; nombre: string; descripcion: string | null };
   servicios: Servicio[];
   franjas: Franja[];
   ocupaciones: Ocupacion[];
+  asignacionPreseleccionada: string | null;
   ahoraInicial: string;
 }) {
   const [paso, setPaso] = useState(1);
@@ -54,7 +56,9 @@ export function ReservaPublica({
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("+595 ");
   const [sexo, setSexo] = useState("");
-  const [asignacionId, setAsignacionId] = useState("");
+  const [asignacionId, setAsignacionId] = useState(
+    asignacionPreseleccionada ?? "",
+  );
   const [fecha, setFecha] = useState(ahoraInicial.slice(0, 10));
   const [hora, setHora] = useState("");
   const [ahora, setAhora] = useState(ahoraInicial);
@@ -115,7 +119,7 @@ export function ReservaPublica({
     if (resultado.encontrado) {
       setPacienteEncontrado(resultado.nombre);
       setRegistrandoPaciente(false);
-      setPaso(2);
+      setPaso(asignacionPreseleccionada ? 3 : 2);
       return;
     }
     setPacienteEncontrado(null);
@@ -131,7 +135,7 @@ export function ReservaPublica({
         "Completa nombre, WhatsApp y sexo para continuar.",
       );
     setErrorDocumento("");
-    setPaso(2);
+    setPaso(asignacionPreseleccionada ? 3 : 2);
   };
   if (estado.exito)
     return (
@@ -289,7 +293,7 @@ export function ReservaPublica({
                 )}
               </div>
             ) : null}
-            {paso === 2 ? (
+            {paso === 2 && !asignacionPreseleccionada ? (
               <div className="grid gap-5">
                 <div>
                   <h2 className="font-[Fraunces] text-2xl">
@@ -403,7 +407,7 @@ export function ReservaPublica({
                 <div className="flex justify-between gap-3">
                   <button
                     type="button"
-                    onClick={() => setPaso(2)}
+                    onClick={() => setPaso(asignacionPreseleccionada ? 1 : 2)}
                     className="rounded-full border border-[var(--line)] px-5 py-3 font-semibold"
                   >
                     Atrás

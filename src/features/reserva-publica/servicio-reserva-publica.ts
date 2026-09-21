@@ -64,7 +64,10 @@ export async function buscarPacienteReservaPublica(
   return data ? { nombre: String(data.nombre_apellido) } : null;
 }
 
-export async function obtenerDatosReservaPublica(profesionalId: string) {
+export async function obtenerDatosReservaPublica(
+  profesionalId: string,
+  asignacionPreseleccionada?: string,
+) {
   const db = crearClienteSupabaseAdministrativo();
   const { data: profesional, error: errorProfesional } = await db
     .from("profesionales")
@@ -98,6 +101,11 @@ export async function obtenerDatosReservaPublica(profesionalId: string) {
   for (const asignacion of (asignacionesResultado.data ?? []) as Array<
     Record<string, unknown>
   >) {
+    if (
+      asignacionPreseleccionada &&
+      String(asignacion.id) !== asignacionPreseleccionada
+    )
+      continue;
     const servicioAnidado = Array.isArray(asignacion.servicios)
       ? asignacion.servicios[0]
       : asignacion.servicios;
@@ -125,6 +133,7 @@ export async function obtenerDatosReservaPublica(profesionalId: string) {
           fin: String(franja.hora_fin).slice(0, 5),
         });
   }
+  if (asignacionPreseleccionada && !servicios.length) return null;
   return {
     profesional: {
       id: String(profesional.id),
@@ -134,6 +143,7 @@ export async function obtenerDatosReservaPublica(profesionalId: string) {
         : null,
     },
     servicios,
+    asignacionPreseleccionada: asignacionPreseleccionada ?? null,
     franjas,
     ocupaciones: (ocupacionesResultado.data ?? []) as Ocupacion[],
   };
@@ -241,21 +251,19 @@ export async function crearReservaPublica(entrada: {
     if (errorPaciente || !paciente) throw new ErrorReservaPublica("operacion");
     pacienteId = paciente.paciente_id;
   }
-  const { error } = await db
-    .from("agenda_turnos")
-    .insert({
-      id: crypto.randomUUID(),
-      empresa_id: profesional.empresa_id,
-      paciente_id: pacienteId,
-      profesional_id: profesional.id,
-      profesional_servicio_id: asignacion.id,
-      inicio: entrada.inicio,
-      fin,
-      modalidad: String(servicio.modalidad),
-      estado: "pendiente",
-      origen: "publico",
-      precio_gs: Number(asignacion.precio),
-      creado_por: null,
-    });
+  const { error } = await db.from("agenda_turnos").insert({
+    id: crypto.randomUUID(),
+    empresa_id: profesional.empresa_id,
+    paciente_id: pacienteId,
+    profesional_id: profesional.id,
+    profesional_servicio_id: asignacion.id,
+    inicio: entrada.inicio,
+    fin,
+    modalidad: String(servicio.modalidad),
+    estado: "pendiente",
+    origen: "publico",
+    precio_gs: Number(asignacion.precio),
+    creado_por: null,
+  });
   if (error) throw new ErrorReservaPublica("operacion");
 }
