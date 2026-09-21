@@ -16,6 +16,8 @@ function datos(f: FormData) {
     descripcion: String(f.get("descripcion") ?? ""),
     modalidad: String(f.get("modalidad") ?? ""),
     duracion: String(f.get("duracion") ?? ""),
+    presentacion: String(f.get("presentacion") ?? "normal"),
+    ordenPublico: String(f.get("ordenPublico") ?? "0"),
   };
 }
 export async function crearServicioAccion(

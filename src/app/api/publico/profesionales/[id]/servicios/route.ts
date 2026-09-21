@@ -43,7 +43,7 @@ export async function GET(
   const { data: servicios, error } = await db
     .from("profesionales_servicios")
     .select(
-      "id,precio,servicios(id,nombre,descripcion,modalidad,duracion_minutos)",
+      "id,precio,servicios(id,nombre,descripcion,modalidad,duracion_minutos,presentacion,orden_publico)",
     )
     .eq("empresa_id", empresa.id)
     .eq("profesional_id", id)
@@ -58,14 +58,28 @@ export async function GET(
   return NextResponse.json(
     {
       profesional,
-      servicios: (servicios ?? []).map((item: Record<string, unknown>) => ({
-        asignacionId: item.id,
-        precioGs: item.precio,
-        enlaceReserva: `${origen}/reservar/${id}/${item.id}`,
-        servicio: Array.isArray(item.servicios)
-          ? item.servicios[0]
-          : item.servicios,
-      })),
+      servicios: (servicios ?? [])
+        .map((item: Record<string, unknown>) => ({
+          asignacionId: item.id,
+          precioGs: item.precio,
+          enlaceReserva: `${origen}/reservar/${id}/${item.id}`,
+          servicio: Array.isArray(item.servicios)
+            ? item.servicios[0]
+            : item.servicios,
+        }))
+        .sort(
+          (a, b) =>
+            Number((a.servicio as Record<string, unknown>).orden_publico ?? 0) -
+              Number(
+                (b.servicio as Record<string, unknown>).orden_publico ?? 0,
+              ) ||
+            String(
+              (a.servicio as Record<string, unknown>).nombre,
+            ).localeCompare(
+              String((b.servicio as Record<string, unknown>).nombre),
+              "es",
+            ),
+        ),
     },
     { headers },
   );

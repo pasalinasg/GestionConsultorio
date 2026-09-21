@@ -12,6 +12,11 @@ import {
 } from "./acciones-servicios";
 import { formatearModalidad } from "@/lib/formato-presentacion";
 
+const etiquetaPresentacion = (presentacion: ServicioListado["presentacion"]) =>
+  ({ normal: "Normal", destacado: "Destacado", promocion: "Promoción" })[
+    presentacion
+  ];
+
 export function ListaServicios({
   servicios,
 }: {
@@ -89,7 +94,9 @@ export function ListaServicios({
   ]);
   return (
     <div className="grid gap-5">
-      {mostrarBanner && respuestaLista && (resultadoActual.exito || resultadoActual.error) ? (
+      {mostrarBanner &&
+      respuestaLista &&
+      (resultadoActual.exito || resultadoActual.error) ? (
         <p
           role={resultadoActual.error ? "alert" : "status"}
           className={`fixed right-5 top-5 z-[70] flex w-[min(90vw,28rem)] items-center gap-3 rounded-3xl border px-5 py-4 text-sm shadow-xl ${resultadoActual.error ? "border-rose-200 bg-rose-50 text-rose-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}
@@ -132,9 +139,11 @@ export function ListaServicios({
         </select>
       </div>
       <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--paper)]">
-        <div className="hidden grid-cols-[1fr_160px_110px] gap-4 border-b border-[var(--line)] px-5 py-3 text-xs font-bold uppercase tracking-wider text-[#71816a] sm:grid">
+        <div className="hidden grid-cols-[minmax(0,1fr)_130px_130px_90px_110px] gap-4 border-b border-[var(--line)] px-5 py-3 text-xs font-bold uppercase tracking-wider text-[#71816a] sm:grid">
           <span>Servicio</span>
           <span>Modalidad</span>
+          <span>Presentación</span>
+          <span>Orden</span>
           <span>Estado</span>
         </div>
         {visibles.length ? (
@@ -146,7 +155,7 @@ export function ListaServicios({
                 setMostrarBanner(false);
                 setModal(s);
               }}
-              className="grid w-full gap-2 border-b border-[var(--line)] px-5 py-4 text-left last:border-0 hover:bg-[var(--cream)] sm:grid-cols-[1fr_160px_110px] sm:items-center"
+              className="grid w-full gap-2 border-b border-[var(--line)] px-5 py-4 text-left last:border-0 hover:bg-[var(--cream)] sm:grid-cols-[minmax(0,1fr)_130px_130px_90px_110px] sm:items-center"
             >
               <span>
                 <strong className="block text-sm">{s.nombre}</strong>
@@ -155,6 +164,10 @@ export function ListaServicios({
                 </small>
               </span>
               <span className="text-sm">{formatearModalidad(s.modalidad)}</span>
+              <span className="w-fit rounded-full bg-[var(--cream)] px-3 py-1 text-xs font-semibold text-[var(--muted)]">
+                {etiquetaPresentacion(s.presentacion)}
+              </span>
+              <span className="text-sm tabular-nums">{s.ordenPublico}</span>
               <span className="w-fit rounded-full bg-[var(--sage)]/55 px-3 py-1 text-xs font-semibold text-[var(--forest)]">
                 {s.estado}
               </span>
@@ -237,6 +250,32 @@ export function ListaServicios({
                     className="h-11 rounded-xl border px-3"
                   />
                 </label>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="grid gap-1 text-sm font-medium">
+                    Presentación pública
+                    <select
+                      name="presentacion"
+                      defaultValue={actual?.presentacion ?? "normal"}
+                      className="h-11 rounded-xl border px-3"
+                    >
+                      <option value="normal">Normal</option>
+                      <option value="destacado">Destacado</option>
+                      <option value="promocion">Promoción</option>
+                    </select>
+                  </label>
+                  <label className="grid gap-1 text-sm font-medium">
+                    Orden público
+                    <input
+                      name="ordenPublico"
+                      type="number"
+                      min="0"
+                      step="1"
+                      defaultValue={actual?.ordenPublico ?? 0}
+                      required
+                      className="h-11 rounded-xl border px-3"
+                    />
+                  </label>
+                </div>
                 <button
                   disabled={pendienteCrear || pendienteEditar}
                   className="h-11 rounded-full bg-[var(--forest)] text-sm font-semibold text-white"

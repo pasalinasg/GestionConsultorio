@@ -18,8 +18,11 @@ export async function listarServicios(contexto: ContextoAutorizado) {
   const c = crearClienteSupabaseAdministrativo();
   const { data, error } = await c
     .from("servicios")
-    .select("id,nombre,descripcion,modalidad,duracion_minutos,estado")
+    .select(
+      "id,nombre,descripcion,modalidad,duracion_minutos,presentacion,orden_publico,estado",
+    )
     .eq("empresa_id", contexto.empresaId)
+    .order("orden_publico")
     .order("nombre");
   if (error) throw new ErrorServicios("operacion");
   return ((data ?? []) as Array<Record<string, unknown>>).map(
@@ -30,6 +33,8 @@ export async function listarServicios(contexto: ContextoAutorizado) {
         descripcion: item.descripcion ? String(item.descripcion) : null,
         modalidad: item.modalidad as ServicioListado["modalidad"],
         duracionMinutos: Number(item.duracion_minutos),
+        presentacion: item.presentacion as ServicioListado["presentacion"],
+        ordenPublico: Number(item.orden_publico),
         estado: item.estado as ServicioListado["estado"],
       }) satisfies ServicioListado,
   );
@@ -50,6 +55,8 @@ export async function crearServicio(
     descripcion: v.datos.descripcion,
     modalidad: v.datos.modalidad,
     duracion_minutos: v.datos.duracion,
+    presentacion: v.datos.presentacion,
+    orden_publico: v.datos.ordenPublico,
     estado: "activo",
     creado_en: new Date().toISOString(),
     actualizado_en: new Date().toISOString(),
@@ -73,6 +80,8 @@ export async function editarServicio(
       descripcion: v.datos.descripcion,
       modalidad: v.datos.modalidad,
       duracion_minutos: v.datos.duracion,
+      presentacion: v.datos.presentacion,
+      orden_publico: v.datos.ordenPublico,
       actualizado_en: new Date().toISOString(),
     })
     .eq("id", id)
