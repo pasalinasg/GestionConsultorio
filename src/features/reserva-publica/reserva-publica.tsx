@@ -175,20 +175,26 @@ export function ReservaPublica({
               1. Paciente
             </span>
             <span className="text-[var(--line)]">—</span>
-            <span
-              className={
-                paso >= 2 ? "text-[var(--forest)]" : "text-[var(--muted)]"
-              }
-            >
-              2. Servicio
-            </span>
-            <span className="text-[var(--line)]">—</span>
+            {!asignacionPreseleccionada ? (
+              <>
+                <span
+                  className={
+                    paso >= 2
+                      ? "text-[var(--forest)]"
+                      : "text-[var(--muted)]"
+                  }
+                >
+                  2. Servicio
+                </span>
+                <span className="text-[var(--line)]">—</span>
+              </>
+            ) : null}
             <span
               className={
                 paso >= 3 ? "text-[var(--forest)]" : "text-[var(--muted)]"
               }
             >
-              3. Horario
+              {asignacionPreseleccionada ? "2. Horario" : "3. Horario"}
             </span>
           </div>
           <section className="rounded-3xl border border-[var(--line)] bg-[var(--paper)] p-6 shadow-sm sm:p-8">

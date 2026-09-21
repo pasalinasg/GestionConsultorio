@@ -1,5 +1,6 @@
 import { crearClienteSupabaseAdministrativo } from "@/lib/supabase/admin";
 import { esFechaHoraPasadaParaguay } from "@/features/agenda/tiempo-paraguay";
+import { notificarNuevaReserva } from "./notificacion-reserva-publica";
 
 export class ErrorReservaPublica extends Error {
   constructor(readonly codigo: "invalida" | "no_disponible" | "operacion") {
@@ -174,7 +175,7 @@ export async function crearReservaPublica(entrada: {
   const { data: asignacion, error: errorAsignacion } = await db
     .from("profesionales_servicios")
     .select(
-      "id,precio,profesional_id,servicios(modalidad,duracion_minutos,estado),profesionales_servicios_franjas(dia_semana,hora_inicio,hora_fin,estado)",
+      "id,precio,profesional_id,servicios(nombre,modalidad,duracion_minutos,estado),profesionales_servicios_franjas(dia_semana,hora_inicio,hora_fin,estado)",
     )
     .eq("id", entrada.asignacionId)
     .eq("empresa_id", profesional.empresa_id)
@@ -223,12 +224,14 @@ export async function crearReservaPublica(entrada: {
   if (conflicto) throw new ErrorReservaPublica("no_disponible");
   const pacienteExistente = await db
     .from("paciente")
-    .select("paciente_id")
+    .select("paciente_id,nombre_apellido,telefono")
     .eq("empresa_id", profesional.empresa_id)
     .eq("documento", documento)
     .maybeSingle();
   if (pacienteExistente.error) throw new ErrorReservaPublica("operacion");
   let pacienteId = pacienteExistente.data?.paciente_id ?? null;
+  let nombrePaciente = pacienteExistente.data?.nombre_apellido?.trim() ?? "";
+  let telefonoPaciente = pacienteExistente.data?.telefono?.trim() ?? "";
   if (!pacienteId) {
     if (
       entrada.nombre.trim().length < 2 ||
@@ -250,6 +253,8 @@ export async function crearReservaPublica(entrada: {
       .single();
     if (errorPaciente || !paciente) throw new ErrorReservaPublica("operacion");
     pacienteId = paciente.paciente_id;
+    nombrePaciente = entrada.nombre.trim();
+    telefonoPaciente = telefono;
   }
   const { error } = await db.from("agenda_turnos").insert({
     id: crypto.randomUUID(),
@@ -266,4 +271,11 @@ export async function crearReservaPublica(entrada: {
     creado_por: null,
   });
   if (error) throw new ErrorReservaPublica("operacion");
+
+  await notificarNuevaReserva({
+    paciente: nombrePaciente || entrada.nombre.trim(),
+    telefono: telefonoPaciente || telefono,
+    servicio: String(servicio.nombre),
+    inicio: entrada.inicio,
+  });
 }
