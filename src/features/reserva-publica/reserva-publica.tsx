@@ -7,6 +7,7 @@ import {
   type EstadoReservaPublica,
 } from "./acciones-reserva-publica";
 import { fechaHoraActualParaguay } from "@/features/agenda/tiempo-paraguay";
+import { TarjetasServicios } from "@/features/servicios/tarjetas-servicios";
 
 type Servicio = {
   id: string;
@@ -15,6 +16,8 @@ type Servicio = {
   modalidad: "presencial" | "online";
   duracion: number;
   precio: number;
+  presentacion: "normal" | "destacado" | "promocion";
+  ordenPublico: number;
 };
 type Franja = {
   asignacionId: string;
@@ -179,9 +182,7 @@ export function ReservaPublica({
               <>
                 <span
                   className={
-                    paso >= 2
-                      ? "text-[var(--forest)]"
-                      : "text-[var(--muted)]"
+                    paso >= 2 ? "text-[var(--forest)]" : "text-[var(--muted)]"
                   }
                 >
                   2. Servicio
@@ -319,33 +320,13 @@ export function ReservaPublica({
                     )}
                   </p>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  {servicios.map((item) => (
-                    <button
-                      type="button"
-                      key={item.id}
-                      onClick={() => {
-                        setAsignacionId(item.id);
-                        setPaso(3);
-                      }}
-                      className="flex min-h-60 cursor-pointer flex-col items-start rounded-2xl border border-[var(--line)] p-5 text-left transition hover:border-[var(--forest)] hover:bg-[var(--cream)]"
-                    >
-                      <span className="text-xs font-bold uppercase tracking-wider text-[var(--forest)]">
-                        {item.modalidad} · {item.duracion} min
-                      </span>
-                      <strong className="mt-4 font-[Fraunces] text-2xl">
-                        {item.nombre}
-                      </strong>
-                      <strong className="mt-3 font-[Fraunces] text-3xl">
-                        Gs. {item.precio.toLocaleString("es-PY")}
-                      </strong>
-                      <span className="mt-4 whitespace-pre-line text-sm leading-6 text-[var(--muted)]">
-                        {item.descripcion ||
-                          "Atención profesional personalizada."}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+                <TarjetasServicios
+                  servicios={servicios}
+                  onSeleccionar={(id) => {
+                    setAsignacionId(id);
+                    setPaso(3);
+                  }}
+                />
                 <button
                   type="button"
                   onClick={() => setPaso(1)}

@@ -11,6 +11,7 @@ import {
   type EstadoAgendaAccion,
 } from "./acciones-agenda";
 import { fechaHoraActualParaguay } from "./tiempo-paraguay";
+import { TarjetasServicios } from "@/features/servicios/tarjetas-servicios";
 
 type Opcion = {
   id: string;
@@ -22,6 +23,8 @@ type Opcion = {
   duracion?: number;
   descripcionProfesional?: string | null;
   descripcion?: string | null;
+  presentacion?: "normal" | "destacado" | "promocion";
+  ordenPublico?: number;
 };
 type Franja = {
   asignacionId: string;
@@ -366,43 +369,39 @@ export function NuevoTurno({
         {paso === 4 ? (
           <div className="grid gap-5">
             <h2 className="font-[Fraunces] text-2xl">Servicios disponibles</h2>
-            <div className="grid grid-flow-col auto-cols-[17rem] justify-start gap-4 overflow-x-auto pb-3 xl:auto-cols-[calc((100%-4rem)/5)] xl:justify-center">
-              {opciones
+            <TarjetasServicios
+              servicios={opciones
                 .filter((item) => item.profesional === profesional)
-                .map((item) => (
-                  <button
-                    type="button"
-                    key={item.id}
-                    onClick={() => {
-                      setOpcion(item.id);
-                      setPaso(5);
-                    }}
-                    className="flex min-h-64 flex-col items-start rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-5 text-left transition hover:border-[var(--forest)]"
-                  >
-                    <span className="text-xs font-bold uppercase tracking-wider text-[var(--forest)]">
-                      {item.modalidad} · {item.duracion ?? 30} min
-                    </span>
-                    <strong className="mt-4 font-[Fraunces] text-2xl">
-                      {item.servicio}
-                    </strong>
-                    <strong className="mt-3 font-[Fraunces] text-3xl">
-                      Gs. {item.precio.toLocaleString("es-PY")}
-                    </strong>
-                    <span className="mt-4 text-sm text-[var(--muted)]">
-                      {item.descripcion
-                        ? item.descripcion
-                            .split("✓")
-                            .filter(Boolean)
-                            .map((linea, indice) => (
-                              <span key={indice} className="mb-1 block">
-                                ✓ {linea.trim()}
-                              </span>
-                            ))
-                        : "Servicio profesional personalizado."}
-                    </span>
-                  </button>
-                ))}
-            </div>
+                .sort(
+                  (a, b) =>
+                    (a.presentacion === "promocion"
+                      ? 0
+                      : a.presentacion === "destacado"
+                        ? 1
+                        : 2) -
+                      (b.presentacion === "promocion"
+                        ? 0
+                        : b.presentacion === "destacado"
+                          ? 1
+                          : 2) ||
+                    (a.ordenPublico ?? 0) - (b.ordenPublico ?? 0) ||
+                    a.servicio.localeCompare(b.servicio, "es"),
+                )
+                .map((item) => ({
+                  id: item.id,
+                  nombre: item.servicio,
+                  descripcion: item.descripcion ?? null,
+                  modalidad: item.modalidad,
+                  duracion: item.duracion ?? 30,
+                  precio: item.precio,
+                  presentacion: item.presentacion,
+                  ordenPublico: item.ordenPublico,
+                }))}
+              onSeleccionar={(id) => {
+                setOpcion(id);
+                setPaso(5);
+              }}
+            />
             <button
               type="button"
               onClick={() => setPaso(esAgendaPropia ? 2 : 3)}

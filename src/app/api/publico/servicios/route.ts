@@ -63,6 +63,21 @@ export async function GET(request: Request) {
         })
         .sort(
           (a, b) =>
+            (String((a.servicio as Record<string, unknown>).presentacion) ===
+            "promocion"
+              ? 0
+              : String((a.servicio as Record<string, unknown>).presentacion) ===
+                  "destacado"
+                ? 1
+                : 2) -
+              (String((b.servicio as Record<string, unknown>).presentacion) ===
+              "promocion"
+                ? 0
+                : String(
+                      (b.servicio as Record<string, unknown>).presentacion,
+                    ) === "destacado"
+                  ? 1
+                  : 2) ||
             Number((a.servicio as Record<string, unknown>).orden_publico ?? 0) -
               Number(
                 (b.servicio as Record<string, unknown>).orden_publico ?? 0,

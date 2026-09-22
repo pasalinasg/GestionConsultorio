@@ -15,6 +15,8 @@ type ServicioPublico = {
   modalidad: "presencial" | "online";
   duracion: number;
   precio: number;
+  presentacion: "normal" | "destacado" | "promocion";
+  ordenPublico: number;
 };
 type FranjaPublica = {
   asignacionId: string;
@@ -82,7 +84,7 @@ export async function obtenerDatosReservaPublica(
     db
       .from("profesionales_servicios")
       .select(
-        "id,precio,servicios(nombre,descripcion,modalidad,duracion_minutos,estado),profesionales_servicios_franjas(id,profesional_servicio_id,dia_semana,hora_inicio,hora_fin,estado)",
+        "id,precio,servicios(nombre,descripcion,modalidad,duracion_minutos,presentacion,orden_publico,estado),profesionales_servicios_franjas(id,profesional_servicio_id,dia_semana,hora_inicio,hora_fin,estado)",
       )
       .eq("empresa_id", profesional.empresa_id)
       .eq("profesional_id", profesional.id)
@@ -119,6 +121,10 @@ export async function obtenerDatosReservaPublica(
       modalidad: String(servicio.modalidad) as "presencial" | "online",
       duracion: Number(servicio.duracion_minutos),
       precio: Number(asignacion.precio),
+      presentacion: String(
+        servicio.presentacion,
+      ) as ServicioPublico["presentacion"],
+      ordenPublico: Number(servicio.orden_publico),
     });
     const franjasAnidadas = Array.isArray(
       asignacion.profesionales_servicios_franjas,
@@ -143,7 +149,21 @@ export async function obtenerDatosReservaPublica(
         ? String(profesional.descripcion)
         : null,
     },
-    servicios,
+    servicios: servicios.sort(
+      (a, b) =>
+        (a.presentacion === "promocion"
+          ? 0
+          : a.presentacion === "destacado"
+            ? 1
+            : 2) -
+          (b.presentacion === "promocion"
+            ? 0
+            : b.presentacion === "destacado"
+              ? 1
+              : 2) ||
+        a.ordenPublico - b.ordenPublico ||
+        a.nombre.localeCompare(b.nombre, "es"),
+    ),
     asignacionPreseleccionada: asignacionPreseleccionada ?? null,
     franjas,
     ocupaciones: (ocupacionesResultado.data ?? []) as Ocupacion[],
