@@ -100,6 +100,7 @@ export function NuevoTurno({
     ? turnos.filter(
         (turno) =>
           turno.paciente === encontrado.nombreApellido &&
+          turno.inicio.slice(0, 10) >= ahoraParaguay.slice(0, 10) &&
           !["rechazada", "vencida", "cancelada"].includes(turno.estado),
       )
     : [];

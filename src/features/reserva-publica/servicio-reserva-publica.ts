@@ -1,5 +1,8 @@
 import { crearClienteSupabaseAdministrativo } from "@/lib/supabase/admin";
-import { esFechaHoraPasadaParaguay } from "@/features/agenda/tiempo-paraguay";
+import {
+  esFechaHoraPasadaParaguay,
+  fechaActualParaguay,
+} from "@/features/agenda/tiempo-paraguay";
 import { notificarNuevaReserva } from "./notificacion-reserva-publica";
 
 export class ErrorReservaPublica extends Error {
@@ -95,7 +98,7 @@ export async function obtenerDatosReservaPublica(
       .eq("empresa_id", profesional.empresa_id)
       .eq("profesional_id", profesional.id)
       .in("estado", ["pendiente", "confirmada", "atendida"])
-      .gte("inicio", new Date().toISOString().slice(0, 10)),
+      .gte("inicio", `${fechaActualParaguay()}T00:00:00`),
   ]);
   if (asignacionesResultado.error || ocupacionesResultado.error)
     throw new ErrorReservaPublica("operacion");

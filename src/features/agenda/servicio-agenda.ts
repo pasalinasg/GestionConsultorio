@@ -2,7 +2,10 @@ import { crearClienteSupabaseAdministrativo } from "@/lib/supabase/admin";
 import type { ContextoAutorizado } from "@/features/autenticacion/servicio-autorizacion";
 import { obtenerProfesionalDelUsuario } from "@/features/profesionales/servicio-profesionales";
 import type { EstadoTurno, TurnoListado } from "./tipos-agenda";
-import { esFechaHoraPasadaParaguay } from "./tiempo-paraguay";
+import {
+  esFechaHoraPasadaParaguay,
+  fechaActualParaguay,
+} from "./tiempo-paraguay";
 
 export class ErrorAgenda extends Error {
   constructor(
@@ -70,6 +73,7 @@ async function consultarTurnos(
       "id,profesional_id,profesional_servicio_id,inicio,fin,modalidad,estado,origen,precio_gs,paciente(nombre_apellido),profesionales(nombre_completo),profesionales_servicios(servicios(nombre))",
     )
     .eq("empresa_id", empresaId)
+    .gte("inicio", `${fechaActualParaguay()}T00:00:00`)
     .order("inicio");
   if (profesionalId) consulta.eq("profesional_id", profesionalId);
   if (desde) consulta.gte("inicio", desde);
@@ -186,22 +190,20 @@ export async function crearTurno(
     .gt("fin", entrada.inicio)
     .maybeSingle();
   if (conflicto.data) throw new ErrorAgenda("existente");
-  const { error } = await db
-    .from("agenda_turnos")
-    .insert({
-      id: crypto.randomUUID(),
-      empresa_id: c.empresaId,
-      paciente_id: pacienteId,
-      profesional_id: asignacion.data.profesional_id,
-      profesional_servicio_id: entrada.profesionalServicioId,
-      inicio: entrada.inicio,
-      fin: entrada.fin,
-      modalidad,
-      estado: "pendiente",
-      origen: "interno",
-      precio_gs: Number(asignacion.data.precio),
-      creado_por: c.usuarioId,
-    });
+  const { error } = await db.from("agenda_turnos").insert({
+    id: crypto.randomUUID(),
+    empresa_id: c.empresaId,
+    paciente_id: pacienteId,
+    profesional_id: asignacion.data.profesional_id,
+    profesional_servicio_id: entrada.profesionalServicioId,
+    inicio: entrada.inicio,
+    fin: entrada.fin,
+    modalidad,
+    estado: "pendiente",
+    origen: "interno",
+    precio_gs: Number(asignacion.data.precio),
+    creado_por: c.usuarioId,
+  });
   if (error) throw new ErrorAgenda("operacion");
 }
 
