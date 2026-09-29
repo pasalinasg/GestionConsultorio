@@ -50,7 +50,7 @@ export async function buscarPacienteReservaPublica(
   profesionalId: string,
 ) {
   const documento = normalizarDocumento(documentoEntrada);
-  if (documento.length < 5) throw new ErrorReservaPublica("invalida");
+  if (documento.length === 0) throw new ErrorReservaPublica("invalida");
   const db = crearClienteSupabaseAdministrativo();
   const { data: profesional, error: errorProfesional } = await db
     .from("profesionales")
@@ -184,7 +184,7 @@ export async function crearReservaPublica(entrada: {
 }) {
   const documento = normalizarDocumento(entrada.documento);
   const telefono = normalizarTelefono(entrada.telefono);
-  if (documento.length < 5 || esFechaHoraPasadaParaguay(entrada.inicio))
+  if (documento.length === 0 || esFechaHoraPasadaParaguay(entrada.inicio))
     throw new ErrorReservaPublica("invalida");
   const db = crearClienteSupabaseAdministrativo();
   const { data: profesional, error: errorProfesional } = await db

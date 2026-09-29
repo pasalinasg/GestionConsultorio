@@ -108,8 +108,8 @@ export function ReservaPublica({
     if (hora && !horarios.includes(hora)) setHora("");
   }, [hora, horarios]);
   const verificarDocumento = async () => {
-    if (documento.replace(/\D/g, "").length < 5)
-      return setErrorDocumento("Ingresa una cédula válida.");
+    if (documento.replace(/\D/g, "").length === 0)
+      return setErrorDocumento("Ingresa una cédula.");
     setVerificando(true);
     setErrorDocumento("");
     const resultado = await buscarPacienteReservaPublicaAccion(

@@ -20,9 +20,9 @@ const etiquetaPresentacion = {
 } as const;
 
 function detalles(descripcion: string | null) {
-  if (!descripcion) return ["Atención profesional personalizada."];
+  if (!descripcion) return [];
   return descripcion
-    .split(/\n|✓/)
+    .split("\n")
     .map((detalle) => detalle.trim())
     .filter(Boolean);
 }
@@ -99,7 +99,7 @@ export function TarjetasServicios({
               <span
                 className={`text-xs font-bold uppercase tracking-[0.15em] ${destacado ? "text-white/80" : "text-[var(--forest)]"}`}
               >
-                {servicio.modalidad} · {servicio.duracion} min
+                {servicio.modalidad}
               </span>
               {etiquetaPresentacion[presentacion] ? (
                 <span
@@ -118,10 +118,7 @@ export function TarjetasServicios({
                 className={`mt-7 grid gap-2 text-sm leading-6 ${destacado ? "text-white" : "text-[var(--muted)]"}`}
               >
                 {detalles(servicio.descripcion).map((detalle, indice) => (
-                  <li key={`${servicio.id}-${indice}`} className="flex gap-2">
-                    <span aria-hidden="true">✓</span>
-                    <span>{detalle}</span>
-                  </li>
+                  <li key={`${servicio.id}-${indice}`}>{detalle}</li>
                 ))}
               </ul>
               <span
